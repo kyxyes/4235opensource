@@ -1,0 +1,22 @@
+{
+	 "manifest_version": 2,
+   "background":{
+      "page": "background.html",
+      "persistent": true
+   },
+   "browser_action": {
+      "default_icon": "images/logo48.png",
+      "default_title": "Search Bookmarked Page Contents"
+   },
+   "description": "Find your bookmarked pages\n  by searching not only their titles and web addresses, but also their\n  contents!",
+   "icons": {
+      "128": "images/logo128.png",
+      "16": "images/logo16.png",
+      "48": "images/logo48.png"
+   },
+   "minimum_chrome_version": "5.0",
+   "name": "SearchMark",
+   "permissions": [ "tabs", "bookmarks", "background", "http://*/*", "https://*/*", "unlimited_storage" ],
+   "update_url": "http://clients2.google.com/service/update2/crx",
+   "version": "2.5"
+}

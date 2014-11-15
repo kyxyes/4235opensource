@@ -1,0 +1,33 @@
+<html>
+<head>
+
+<title>Search Bookmarked Pages</title>
+
+<link rel="stylesheet" type="text/css" href="style.css"/>
+
+<script type="text/javascript" src="jquery-2.1.1.min"></script>
+
+<script type="text/javascript" src="SearchMarkUI.js"></script>
+
+</head>
+
+<body>
+
+<div id="welcomepage">
+
+  <div id="floater"></div>
+
+  <div id="welcomesearchbox">
+
+    <!-- search box -->
+    <input type="text" id="searchbox" class="searchbox"/>
+
+    <!-- search button -->
+    <button type="button" id="searchbutton" class="searchbutton">
+    Search</button>
+    
+  </div>
+  </div>
+
+</body>
+</html>

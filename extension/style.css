@@ -1,0 +1,123 @@
+body 
+{
+  font-family: "Myriad Pro", Verdana, Arial, Helvetica, sans-serif;
+  margin: 0px;
+  padding: 0px;
+  }
+
+.searchbox 
+{
+  border:1px solid #d1c7ac;
+  width: 230px;
+  color:#333333;
+  padding:3px;
+  margin-right:4px;
+  margin-bottom:8px;
+  }
+
+.searchbutton 
+{ 
+  border:1px solid #d1c7ac;
+  color:#444444;
+  padding:3px;
+  margin-right:4px;
+  margin-bottom:8px;
+  font-weight:bold;
+  border-style:outset;
+  background-color:#eeeeee;
+  }
+
+.searchbuttonpressed
+{ 
+  border:1px solid #d1c7ac;
+  color:#444444;
+  padding:3px;
+  margin-right:4px;
+  margin-bottom:8px;
+  font-weight:bold;
+  border-style:outset;
+  background-color:#dddddd;
+  }
+
+table
+{ 
+  width:100%;
+  }
+
+#thlogo
+{
+  text-align: right;
+  vertical-align: center;
+  }
+
+#thsearchbox
+{ 
+  text-align: left;
+  vertical-align: center;
+  padding-top: 15px;
+  padding-left: 15px;
+  }
+
+#floater
+{
+  float:left;
+  height:50%;
+  }
+
+#welcomesearchbox
+{ 
+  clear: both;
+  position: relative;
+  height: 1in;
+  padding-left: 30px;
+  }
+
+#welcomepage
+{
+  height: 100%;
+  width: 100%;
+  text-align: center;
+  background: url("images/welcome-template.png") center
+  no-repeat fixed;
+  }
+
+#topsearch
+{ 
+  height:1in;
+  background: url("images/topsearchbg.png") top left repeat-x;
+  margin: 0px;
+  padding: 0px;
+  text-align: center;
+  }
+
+#resultspagebtm
+{ 
+  margin: auto;
+  padding-left: 20%;
+  padding-right: 20%;
+  }
+
+.resulturl
+{
+  font-size: small;
+  color: gray;
+  }
+
+.resultactions 
+{ 
+  font-size: small;
+  color: #358f39;
+  }
+
+.highlight
+{ 
+  background-color:yellow;
+  font-weight: bold;
+  }
+
+#tiparea
+{ 
+  text-align: center;
+  width: 3.5in;
+  margin: auto;
+  }
