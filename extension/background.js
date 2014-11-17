@@ -2,6 +2,8 @@
 
 // Bookmarked page database
 var SearchMarkDB = {};
+// History page database
+var SearchHistoryDB = {};
 
 // Communicate with extension UI
 var gPort;
@@ -14,7 +16,7 @@ var uiContextLen = -30;
 
 // ======================== DATABASE API ==================
 
-// Open the database
+// Open the mark database
 SearchMarkDB.db = null;
 SearchMarkDB.open = function()
 {
@@ -23,12 +25,45 @@ SearchMarkDB.open = function()
         openDatabase('SearchMarkDB', '1.0', 'Bookmark Page Storage', dbSize);
 }
 
+//Open the history database
+SearchHistoryDB.db = null;
+SearchHistoryDB.open = function();
+{
+    var dbSize = 200 * 1024 * 1024; // 200 MB
+    SearchHistoryDB.db =
+    openDatabase('SearchHistoryDB', '1.0', 'Historymark Page Storage', dbSize);
+}
+
 // create the table that stores all the bookmark
 // info, including the associated pages.
 SearchMarkDB.createTable =
     function() 
 {
     SearchMarkDB.db.transaction(
+        function(tx)
+        {
+            tx.executeSql('CREATE VIRTUAL TABLE pages ' + 
+                          'USING fts3(id INTEGER PRIMARY KEY, ' + 
+                          'url TEXT, title TEXT, page TEXT, time INTEGER)',
+                          [],
+                          getCallback("create table", "pages", 1),
+                          getCallback("create table", "pages", 0));
+
+            tx.executeSql('CREATE TABLE IF NOT EXISTS ' + 
+                          'rawpages (id INTEGER PRIMARY KEY, htmlpage TEXT)',
+                          [],
+                          getCallback("create table", "rawpages", 1),
+                          getCallback("create table", "rawpages", 0));
+        });
+}
+
+
+// create the table that stores all the history pages
+// info, including the associated pages.
+SearchHistoryDB.createTable =
+    function() 
+{
+    SearchHistoryDB.db.transaction(
         function(tx)
         {
             tx.executeSql('CREATE VIRTUAL TABLE pages ' + 
@@ -74,11 +109,56 @@ SearchMarkDB.addBookmarkedPage =
         });
 }
 
+// add a history page and associated page to the database
+SearchHistoryDB.addHistoryPage =
+    function(newId, newUrl, newTitle, newPlainPage, newTime, newHtmlPage)
+{
+    SearchHistoryDB.db.transaction(
+        function(tx)
+        {
+            // html-free page for searching
+            tx.executeSql('INSERT INTO pages(id, url, title, page, ' +
+                          'time) VALUES (?,?,?,?,?)',
+                          [ newId, newUrl, newTitle, newPlainPage,
+                            newTime ],
+                          getCallback("insert page", newId + " " +
+                                      newUrl, 1), 
+                          getCallback("insert page", newId + " " +
+                                      newUrl, 0));
+
+            // html page for showing cached version
+            tx.executeSql('INSERT INTO rawpages(id, htmlpage) ' +
+                          'VALUES (?,?)', 
+                          [newId, newHtmlPage ], 
+                          getCallback("insert page raw", newId +
+                                      " " + newUrl, 1),  
+                          getCallback("insert page raw", newId +
+                                      " " + newUrl, 0)); 
+        });
+}
+
 // remove a bookmarked page from the database
 SearchMarkDB.removeBookmarkedPage =
     function(theId)
 {
     SearchMarkDB.db.transaction(
+        function(tx)
+        {
+            tx.executeSql('DELETE FROM pages WHERE id=?', [ theId ], 
+                          getCallback("remove page", theId, 1), 
+                          getCallback("remove page", theId, 0));
+
+            tx.executeSql('DELETE FROM rawpages WHERE id=?', [ theId ], 
+                          getCallback("remove page raw", theId, 1), 
+                          getCallback("remove page raw", theId, 0));
+        });
+}
+
+// remove a history page from the database
+SearchHistoryDB.removeHistoryPage =
+    function(theId)
+{
+    SearchHistoryDB.db.transaction(
         function(tx)
         {
             tx.executeSql('DELETE FROM pages WHERE id=?', [ theId ], 
@@ -112,6 +192,27 @@ SearchMarkDB.updateBookmarkedPage =
         });
 }
 
+// update an already stored history page, this will cover the original page
+SearchHistoryDB.updateHistoryPage =
+    function(theId, theUrl, theTitle, thePlainPage, theTime,
+             theHtmlPage)
+{
+    SearchHistoryDB.db.transaction(
+        function(tx)
+        {
+            tx.executeSql('UPDATE pages SET url=?, ' + 
+                          'title=?, page=? WHERE id=?',
+                          [ theUrl, theTitle, thePlainPage, theId ],
+                          getCallback("update historypage", theUrl, 1),
+                          getCallback("update historypage", theUrl, 0));
+
+            tx.executeSql('UPDATE rawpages SET htmlpage=? WHERE id=?',
+                          [ theHtmlPage, theId ],
+                          getCallback("update historypage", "raw " + theUrl, 1),
+                          getCallback("update historypage", "raw " + theUrl, 0));
+        });
+}
+
 // get all bookmark URLs. Callback function can
 // be provided use the results as necessary.
 SearchMarkDB.getStoredBookmarks =
@@ -132,7 +233,29 @@ SearchMarkDB.getStoredBookmarks =
         });
 }
 
-// Supports the cached page feature. Returns cached raw html page.
+
+// get all history URLs. Callback function can
+// be provided use the results as necessary.
+SearchHistoryDB.getStoredHistory =
+    function()
+{
+    SearchHistoryDB.db.transaction(
+        function(tx)
+        {
+            tx.executeSql('SELECT id,url,title FROM pages',
+                          [],
+                          getCallback("show db", "pages", 1),
+                          getCallback("show db", "pages", 0));
+
+            tx.executeSql('SELECT id FROM rawpages',
+                          [],
+                          getCallback("show db", "raw", 1),
+                          getCallback("show db", "raw", 0));
+        });
+}
+
+
+// Supports the cached page feature. Returns cached raw html page, for SearchMarkDB
 SearchMarkDB.getRawHtmlPage = 
     function (id, callback)
 {
@@ -167,11 +290,63 @@ SearchMarkDB.doSearch =
         });
 }
 
+// Supports the cached page feature. Returns cached raw html page, for SearchHistoryDB
+SearchHistoryDB.getRawHtmlPage = 
+    function (id, callback)
+{
+    SearchHistoryDB.db.transaction(
+        function(tx)
+        {
+            tx.executeSql('SELECT htmlpage FROM rawpages ' +
+                          'WHERE id = ?',
+                          [id],
+                          callback,
+                          getCallback("get page", "raw", 0));
+        });
+}
+
+SearchHistoryDB.doSearch =
+    function(callback, keywords)
+{
+    SearchHistoryDB.db.transaction(
+        function(tx)
+        {
+            tx.executeSql('SELECT id,url,title, ' + 
+                          'snippet(pages, "' + uiHighlightStart +
+                          '", "' + uiHighlightEnd + 
+                          '", "' + uiEllipses +
+                          '", -1, ' + uiContextLen + ') ' +
+                          'as snippet FROM pages WHERE ' + 
+                          'pages MATCH ' + keywords + ' ' +
+                          'ORDER BY time DESC',
+                          [],
+                          callback,
+                          getCallback("search pages", "malformed input", 0));
+        });
+}
+
+
 // clear all stored information.
 SearchMarkDB.clear =
     function()
 {
     SearchMarkDB.db.transaction(
+        function(tx)
+        {
+            tx.executeSql('DELETE FROM pages', [], 
+                          getCallback("clear table", "pages", 1), 
+                          getCallback("clear table", "pages", 0));
+
+            tx.executeSql('DELETE FROM rawpages', [], 
+                          getCallback("clear table", "rawpages", 1), 
+                          getCallback("clear table", "rawpages", 0));
+        });
+}
+
+SearchHistoryDB.clear =
+    function()
+{
+    SearchHistoryDB.db.transaction(
         function(tx)
         {
             tx.executeSql('DELETE FROM pages', [], 
@@ -201,6 +376,22 @@ SearchMarkDB.purge =
         });
 }
 
+SearchHistoryDB.purge =
+    function()
+{
+    SearchHistoryDB.db.transaction(
+        function(tx)
+        {
+          tx.executeSql('DROP TABLE pages', [], 
+                        getCallback("delete table", "pages", 1), 
+                        getCallback("delete table", "pages", 0));
+
+          tx.executeSql('DROP TABLE rawpages', [], 
+                        getCallback("delete table", "rawpages", 1), 
+                        getCallback("delete table", "rawpages", 0));
+        });
+}
+
 // ========================== CORE ===============
 
 // prepare to initialize
@@ -209,7 +400,10 @@ SearchMarkDB.purge =
 SearchMarkDB.open();
 console.debug("Opened SearchMark database.");
 
-localStorage['newversion'] = 2.5;
+SearchHistoryDB.open();
+console.debug("Opened SearchHistory database.");
+
+localStorage['newversion'] = 2.5;  // what is the meaning of this ??? 
 
 // Important for new installs
 if(!localStorage['oldversion'])
@@ -285,6 +479,18 @@ chrome.bookmarks.onRemoved.addListener(
 
         SearchMarkDB.removeBookmarkedPage(id);
     });
+	
+// add listener to history's on remove
+chrome.history.onVisitRemoved.addListener(
+    function(id, removeInfo)
+    {
+        localStorage['totalbookmarks']--;
+
+        if (!localStorage['initialized'])
+            return;
+
+        SearchHistoryDB.removeHistoryPage(id);
+    });
 
 // experimental APIs require user to start chrome with a specific option
 // flag from the command line. So, not using for now.
@@ -313,13 +519,29 @@ function init()
         localStorage['initialized'] == 0) 
     {
         SearchMarkDB.createTable();
-        
+        SearchHistoryDb.createTable();
+		
+		var microsecondsPerWeek = 1000 * 60 * 60 * 24 * 7;
+        var oneWeekAgo = (new Date).getTime() - microsecondsPerWeek;
+		
         chrome.bookmarks.getTree(
             function(bookmarks)
             {
                 localStorage['added'] = 0;
                 localStorage['totalbookmarks'] = 0;
     	        initBookmarkDatabase(bookmarks);
+            });
+		
+		//populate the history database
+	    chrome.history.search({
+		'text':'',
+		'startTime': oneWeekAgo
+		},
+            function(historyItems)
+            {
+              //  localStorage['added'] = 0;
+              //  localStorage['totalbookmarks'] = 0;
+    	        initHistoryDatabase(historyItems);
             });
 
         // number of times the welcome page was opened
@@ -480,6 +702,40 @@ function getAndStoreBookmarkContent(bookmark, storeInDB)
     }
 }
 
+// get and store history page content
+function getAndStoreHistoryContent(historyItem, storeInDB)
+{
+   try {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", historyItem.url, true);
+        xhr.onreadystatechange = function()
+        {
+            try {
+                if (this.readyState == 4) {
+
+                    var pageNoHtml = removeHTMLfromPage(this.responseText);
+
+                    // add page to database
+                    storeInDB(historyItem.id, historyItem.url,
+                              historyItem.title, pageNoHtml,
+                              historyItem.lastVisitTime, this.responseText);
+
+                    this.abort();
+                }
+            } catch (e) {
+                console.log(e.message);
+                storeInDB(historyItem.id, historyItem.url, historyItem.title,
+                          "", "");
+            }
+        }
+
+        xhr.send();
+    } catch (e) {
+        console.log(e.message + historyItem.url);
+        storeInDB(historyItem.id, historyItem.url, historyItem.title, "", "");
+    }
+}
+
 function initBookmarkDatabase(bookmarks)
 {
     bookmarks.forEach(
@@ -502,6 +758,27 @@ function initBookmarkDatabase(bookmarks)
             if (bookmark.children)
                 initBookmarkDatabase(bookmark.children);
         });
+}
+
+//initialize history database
+function initHistoryDatabase(historyItems)
+{
+    for(var i = 0; i < historyItems.length; ++i){
+       
+            if (historyItems[i].url && 
+                historyItems[i].url.match("^https?://*")) 
+            { // url exists and is well formed
+
+                console.debug("Adding " + historyItems[i].url);
+
+            //    localStorage['totalbookmarks']++;
+
+                getAndStoreHistoryContent(historyItems[i],
+                           SearchHistoryDB.addHistoryPage);
+            } else {
+                console.debug("Skipping. " + historyItems[i].url);
+            }
+       };
 }
 
 function getCallback(cbname, msg, type)
