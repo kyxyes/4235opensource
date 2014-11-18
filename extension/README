@@ -1,4 +1,6 @@
-Introduction
+Introduction:
+
+
 Motivation
 In the searching service aspect, Chrome provides function which only allow clients to search title of bookmarks; when people search bookmark by key words, however, it sometimes cannot return desired items since some links' titles cannot reflect the main content of the pointed website. What's more, sometimes people may want to search recently visited websites but they may not be able to get it through entering keywords again. Realizing these inconveniences, our open source project targets to improve user's searching experience.
 
