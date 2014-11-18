@@ -27,7 +27,7 @@ SearchMarkDB.open = function()
 
 //Open the history database
 SearchHistoryDB.db = null;
-SearchHistoryDB.open = function();
+SearchHistoryDB.open = function()
 {
     var dbSize = 200 * 1024 * 1024; // 200 MB
     SearchHistoryDB.db =
@@ -46,14 +46,14 @@ SearchMarkDB.createTable =
                           'USING fts3(id INTEGER PRIMARY KEY, ' + 
                           'url TEXT, title TEXT, page TEXT, time INTEGER)',
                           [],
-                          getCallback("create table", "pages", 1),
-                          getCallback("create table", "pages", 0));
+                          getCallback("create table", "pages", 1,1),
+                          getCallback("create table", "pages", 0,1));
 
             tx.executeSql('CREATE TABLE IF NOT EXISTS ' + 
                           'rawpages (id INTEGER PRIMARY KEY, htmlpage TEXT)',
                           [],
-                          getCallback("create table", "rawpages", 1),
-                          getCallback("create table", "rawpages", 0));
+                          getCallback("create table", "rawpages", 1,1),
+                          getCallback("create table", "rawpages", 0,1));
         });
 }
 
@@ -70,14 +70,14 @@ SearchHistoryDB.createTable =
                           'USING fts3(id INTEGER PRIMARY KEY, ' + 
                           'url TEXT, title TEXT, page TEXT, time INTEGER)',
                           [],
-                          getCallback("create table", "pages", 1),
-                          getCallback("create table", "pages", 0));
+                          getCallback("create table", "pages", 1,2),
+                          getCallback("create table", "pages", 0,2));
 
             tx.executeSql('CREATE TABLE IF NOT EXISTS ' + 
                           'rawpages (id INTEGER PRIMARY KEY, htmlpage TEXT)',
                           [],
-                          getCallback("create table", "rawpages", 1),
-                          getCallback("create table", "rawpages", 0));
+                          getCallback("create table", "rawpages", 1,2),
+                          getCallback("create table", "rawpages", 0,2));
         });
 }
 
@@ -94,18 +94,18 @@ SearchMarkDB.addBookmarkedPage =
                           [ newId, newUrl, newTitle, newPlainPage,
                             newTime ],
                           getCallback("insert page", newId + " " +
-                                      newUrl, 1), 
+                                      newUrl, 1,1), 
                           getCallback("insert page", newId + " " +
-                                      newUrl, 0));
+                                      newUrl, 0,1));
 
             // html page for showing cached version
             tx.executeSql('INSERT INTO rawpages(id, htmlpage) ' +
                           'VALUES (?,?)', 
                           [newId, newHtmlPage ], 
                           getCallback("insert page raw", newId +
-                                      " " + newUrl, 1),  
+                                      " " + newUrl, 1,1),  
                           getCallback("insert page raw", newId +
-                                      " " + newUrl, 0)); 
+                                      " " + newUrl, 0,1)); 
         });
 }
 
@@ -122,18 +122,18 @@ SearchHistoryDB.addHistoryPage =
                           [ newId, newUrl, newTitle, newPlainPage,
                             newTime ],
                           getCallback("insert page", newId + " " +
-                                      newUrl, 1), 
+                                      newUrl, 1,2), 
                           getCallback("insert page", newId + " " +
-                                      newUrl, 0));
+                                      newUrl, 0,2));
 
             // html page for showing cached version
             tx.executeSql('INSERT INTO rawpages(id, htmlpage) ' +
                           'VALUES (?,?)', 
                           [newId, newHtmlPage ], 
                           getCallback("insert page raw", newId +
-                                      " " + newUrl, 1),  
+                                      " " + newUrl, 1,2),  
                           getCallback("insert page raw", newId +
-                                      " " + newUrl, 0)); 
+                                      " " + newUrl, 0,2)); 
         });
 }
 
@@ -145,29 +145,29 @@ SearchMarkDB.removeBookmarkedPage =
         function(tx)
         {
             tx.executeSql('DELETE FROM pages WHERE id=?', [ theId ], 
-                          getCallback("remove page", theId, 1), 
-                          getCallback("remove page", theId, 0));
+                          getCallback("remove page", theId, 1,1), 
+                          getCallback("remove page", theId, 0,1));
 
             tx.executeSql('DELETE FROM rawpages WHERE id=?', [ theId ], 
-                          getCallback("remove page raw", theId, 1), 
-                          getCallback("remove page raw", theId, 0));
+                          getCallback("remove page raw", theId, 1,1), 
+                          getCallback("remove page raw", theId, 0,1));
         });
 }
 
 // remove a history page from the database
 SearchHistoryDB.removeHistoryPage =
-    function(theId)
+    function(theurl)
 {
     SearchHistoryDB.db.transaction(
         function(tx)
         {
-            tx.executeSql('DELETE FROM pages WHERE id=?', [ theId ], 
-                          getCallback("remove page", theId, 1), 
-                          getCallback("remove page", theId, 0));
+            tx.executeSql('DELETE FROM pages WHERE url=?', [ theurl ], 
+                          getCallback("remove page", theurl, 1,2), 
+                          getCallback("remove page", theurl, 0,2));
 
-            tx.executeSql('DELETE FROM rawpages WHERE id=?', [ theId ], 
-                          getCallback("remove page raw", theId, 1), 
-                          getCallback("remove page raw", theId, 0));
+            tx.executeSql('DELETE FROM rawpages WHERE url=?', [ theurl ], 
+                          getCallback("remove page raw", theurl, 1,2), 
+                          getCallback("remove page raw", theurl, 0,2));
         });
 }
 
@@ -182,13 +182,13 @@ SearchMarkDB.updateBookmarkedPage =
             tx.executeSql('UPDATE pages SET url=?, ' + 
                           'title=?, page=? WHERE id=?',
                           [ theUrl, theTitle, thePlainPage, theId ],
-                          getCallback("update bookmark", theUrl, 1),
-                          getCallback("update bookmark", theUrl, 0));
+                          getCallback("update bookmark", theUrl, 1,1),
+                          getCallback("update bookmark", theUrl, 0,1));
 
             tx.executeSql('UPDATE rawpages SET htmlpage=? WHERE id=?',
                           [ theHtmlPage, theId ],
-                          getCallback("update bookmark", "raw " + theUrl, 1),
-                          getCallback("update bookmark", "raw " + theUrl, 0));
+                          getCallback("update bookmark", "raw " + theUrl, 1,1),
+                          getCallback("update bookmark", "raw " + theUrl, 0,1));
         });
 }
 
@@ -203,13 +203,13 @@ SearchHistoryDB.updateHistoryPage =
             tx.executeSql('UPDATE pages SET url=?, ' + 
                           'title=?, page=? WHERE id=?',
                           [ theUrl, theTitle, thePlainPage, theId ],
-                          getCallback("update historypage", theUrl, 1),
-                          getCallback("update historypage", theUrl, 0));
+                          getCallback("update historypage", theUrl, 1,2),
+                          getCallback("update historypage", theUrl, 0,2));
 
             tx.executeSql('UPDATE rawpages SET htmlpage=? WHERE id=?',
                           [ theHtmlPage, theId ],
-                          getCallback("update historypage", "raw " + theUrl, 1),
-                          getCallback("update historypage", "raw " + theUrl, 0));
+                          getCallback("update historypage", "raw " + theUrl, 1,2),
+                          getCallback("update historypage", "raw " + theUrl, 0,2));
         });
 }
 
@@ -223,13 +223,13 @@ SearchMarkDB.getStoredBookmarks =
         {
             tx.executeSql('SELECT id,url,title FROM pages',
                           [],
-                          getCallback("show db", "pages", 1),
-                          getCallback("show db", "pages", 0));
+                          getCallback("show db", "pages", 1,1),
+                          getCallback("show db", "pages", 0,1));
 
             tx.executeSql('SELECT id FROM rawpages',
                           [],
-                          getCallback("show db", "raw", 1),
-                          getCallback("show db", "raw", 0));
+                          getCallback("show db", "raw", 1,1),
+                          getCallback("show db", "raw", 0,1));
         });
 }
 
@@ -244,13 +244,13 @@ SearchHistoryDB.getStoredHistory =
         {
             tx.executeSql('SELECT id,url,title FROM pages',
                           [],
-                          getCallback("show db", "pages", 1),
-                          getCallback("show db", "pages", 0));
+                          getCallback("show db", "pages", 1, 2),
+                          getCallback("show db", "pages", 0, 2));
 
             tx.executeSql('SELECT id FROM rawpages',
                           [],
-                          getCallback("show db", "raw", 1),
-                          getCallback("show db", "raw", 0));
+                          getCallback("show db", "raw", 1, 2),
+                          getCallback("show db", "raw", 0, 2));
         });
 }
 
@@ -266,7 +266,7 @@ SearchMarkDB.getRawHtmlPage =
                           'WHERE id = ?',
                           [id],
                           callback,
-                          getCallback("get page", "raw", 0));
+                          getCallback("get page", "raw", 0,1));
         });
 }
 
@@ -286,7 +286,7 @@ SearchMarkDB.doSearch =
                           'ORDER BY time DESC',
                           [],
                           callback,
-                          getCallback("search pages", "malformed input", 0));
+                          getCallback("search pages", "malformed input", 0, 1));
         });
 }
 
@@ -301,7 +301,7 @@ SearchHistoryDB.getRawHtmlPage =
                           'WHERE id = ?',
                           [id],
                           callback,
-                          getCallback("get page", "raw", 0));
+                          getCallback("get page", "raw", 0,2));
         });
 }
 
@@ -321,7 +321,7 @@ SearchHistoryDB.doSearch =
                           'ORDER BY time DESC',
                           [],
                           callback,
-                          getCallback("search pages", "malformed input", 0));
+                          getCallback("search pages", "malformed input", 0,2));
         });
 }
 
@@ -334,12 +334,12 @@ SearchMarkDB.clear =
         function(tx)
         {
             tx.executeSql('DELETE FROM pages', [], 
-                          getCallback("clear table", "pages", 1), 
-                          getCallback("clear table", "pages", 0));
+                          getCallback("clear table", "pages", 1,1), 
+                          getCallback("clear table", "pages", 0,1));
 
             tx.executeSql('DELETE FROM rawpages', [], 
-                          getCallback("clear table", "rawpages", 1), 
-                          getCallback("clear table", "rawpages", 0));
+                          getCallback("clear table", "rawpages", 1,1), 
+                          getCallback("clear table", "rawpages", 0,1));
         });
 }
 
@@ -350,12 +350,12 @@ SearchHistoryDB.clear =
         function(tx)
         {
             tx.executeSql('DELETE FROM pages', [], 
-                          getCallback("clear table", "pages", 1), 
-                          getCallback("clear table", "pages", 0));
+                          getCallback("clear table", "pages", 1,2), 
+                          getCallback("clear table", "pages", 0,2));
 
             tx.executeSql('DELETE FROM rawpages', [], 
-                          getCallback("clear table", "rawpages", 1), 
-                          getCallback("clear table", "rawpages", 0));
+                          getCallback("clear table", "rawpages", 1,2), 
+                          getCallback("clear table", "rawpages", 0,2));
         });
 }
 
@@ -367,12 +367,12 @@ SearchMarkDB.purge =
         function(tx)
         {
           tx.executeSql('DROP TABLE pages', [], 
-                        getCallback("delete table", "pages", 1), 
-                        getCallback("delete table", "pages", 0));
+                        getCallback("delete table", "pages", 1,1), 
+                        getCallback("delete table", "pages", 0,1));
 
           tx.executeSql('DROP TABLE rawpages', [], 
-                        getCallback("delete table", "rawpages", 1), 
-                        getCallback("delete table", "rawpages", 0));
+                        getCallback("delete table", "rawpages", 1,1), 
+                        getCallback("delete table", "rawpages", 0,1));
         });
 }
 
@@ -383,12 +383,12 @@ SearchHistoryDB.purge =
         function(tx)
         {
           tx.executeSql('DROP TABLE pages', [], 
-                        getCallback("delete table", "pages", 1), 
-                        getCallback("delete table", "pages", 0));
+                        getCallback("delete table", "pages", 1,2), 
+                        getCallback("delete table", "pages", 0,2));
 
           tx.executeSql('DROP TABLE rawpages', [], 
-                        getCallback("delete table", "rawpages", 1), 
-                        getCallback("delete table", "rawpages", 0));
+                        getCallback("delete table", "rawpages", 1 ,2), 
+                        getCallback("delete table", "rawpages", 0), 2);
         });
 }
 
@@ -479,17 +479,42 @@ chrome.bookmarks.onRemoved.addListener(
 
         SearchMarkDB.removeBookmarkedPage(id);
     });
-	
-// add listener to history's on remove
-chrome.history.onVisitRemoved.addListener(
-    function(id, removeInfo)
+
+// add links to history
+chrome.history.onVisited.addListener(
+    function(newHistoryItem)
     {
-        localStorage['totalbookmarks']--;
+        localStorage['totalhistory']++;
 
         if (!localStorage['initialized'])
             return;
+        
+        getAndStoreHistoryContent( 
+            {id : newHistoryItem.id,
+             url : newHistoryItem.url,
+             title : newHistoryItem.title,
+             time : newHistoryItem.lastVisitTime},
+             SearchHistoryDB.addHistoryPage);
+    });	
+	
+// add listener to history's on remove
+chrome.history.onVisitRemoved.addListener(
+    function(empty, removeurls) //empty is a boolean variable
+	//removeurls is an array of String
+    {
+        localStorage['totalhistory']--;
 
-        SearchHistoryDB.removeHistoryPage(id);
+        if (!localStorage['initialized'])
+            return;
+        
+		if(empty){ 
+		// delete all data in the history database
+		SearchHistoryDB.purge();
+		return;
+		}
+	    
+		for(var i = 0; i< removeurls.length; i++)
+        SearchHistoryDB.removeHistoryPage(removeurls[i]);
     });
 
 // experimental APIs require user to start chrome with a specific option
@@ -506,10 +531,14 @@ chrome.history.onVisitRemoved.addListener(
 function init()
 {
     console.log("Initializing...");
-
+    localStorage['added'] = 0;
     // if bookmarks in DB not in sync with actual bookmarks
     if(localStorage['added'] && localStorage['totalbookmarks'] &&
        localStorage['added'] != localStorage['totalbookmarks'])
+        cleanupStorage();
+		
+	if(localStorage['historyadded'] && localStorage['totalhistory'] &&
+       localStorage['historyadded'] != localStorage['totalhistory'])
         cleanupStorage();
 
     // initialize once only. Populate the database
@@ -519,7 +548,7 @@ function init()
         localStorage['initialized'] == 0) 
     {
         SearchMarkDB.createTable();
-        SearchHistoryDb.createTable();
+        SearchHistoryDB.createTable();
 		
 		var microsecondsPerWeek = 1000 * 60 * 60 * 24 * 7;
         var oneWeekAgo = (new Date).getTime() - microsecondsPerWeek;
@@ -539,8 +568,9 @@ function init()
 		},
             function(historyItems)
             {
-              //  localStorage['added'] = 0;
-              //  localStorage['totalbookmarks'] = 0;
+			    //alert("test");
+                localStorage['historyadded'] = 0;
+                localStorage['totalhistory'] = 0;
     	        initHistoryDatabase(historyItems);
             });
 
@@ -567,13 +597,16 @@ function cleanupStorage()
 
     console.log("Clearing database tables");
     SearchMarkDB.clear();
+	SearchHistoryDB.clear();
 
     console.log("Removing the tables");
     SearchMarkDB.purge();
+	SearchHistoryDB.purge();
 
     console.log("Setting to 'not initialized'");
     localStorage['initialized'] = 0;
 }
+
 
 function handleRequest(request, sender, callback)
 {
@@ -582,7 +615,13 @@ function handleRequest(request, sender, callback)
 
         console.debug("search " + request.keywords);
 
-        SearchMarkDB.doSearch(searchBookmarkedPagesCb, 
+		if(request.searchtype == 1)
+        SearchMarkDB.doSearch(searchPagesCb, 
+                              "'" + request.keywords + "'");
+							  
+	//  this is to do test
+	    if(request.searchtype == 2)
+	    SearchHistoryDB.doSearch(searchPagesCb, 
                               "'" + request.keywords + "'");
         
         callback();
@@ -623,7 +662,7 @@ function displayRawPage(tx, r)
     }
 }
 
-function searchBookmarkedPagesCb(tx, r)
+function searchPagesCb(tx, r)
 {
     var result = {};
 
@@ -643,6 +682,7 @@ function searchBookmarkedPagesCb(tx, r)
 
     gPort.postMessage(result);
 }
+
 
 function removeHTMLfromPage(page)
 {
@@ -771,7 +811,7 @@ function initHistoryDatabase(historyItems)
 
                 console.debug("Adding " + historyItems[i].url);
 
-            //    localStorage['totalbookmarks']++;
+                localStorage['totalhistorymarks']++;
 
                 getAndStoreHistoryContent(historyItems[i],
                            SearchHistoryDB.addHistoryPage);
@@ -779,9 +819,10 @@ function initHistoryDatabase(historyItems)
                 console.debug("Skipping. " + historyItems[i].url);
             }
        };
+	//   alert("history db popularized!!!");
 }
 
-function getCallback(cbname, msg, type)
+function getCallback(cbname, msg, type, dbtype)
 {
     switch (cbname) {
     case "show db":
@@ -804,7 +845,7 @@ function getCallback(cbname, msg, type)
         if (type == 1) // success callback
             return function(tx, r)
         {
-            console.debug("succeded: " + cbname + " " + msg);
+            console.debug("succeeded: " + cbname + " " + msg);
         }
         else
             return function(tx, e)
@@ -828,7 +869,8 @@ function getCallback(cbname, msg, type)
             return function(tx, r)
         {
             console.debug("succeded: " + cbname + " " + msg);
-            localStorage['added']++;
+            if(dbtype==1)localStorage['added']++;
+			if(dbtype==2)localStorage['historyadded']++;
         }
         else
             // failure callback
@@ -842,8 +884,9 @@ function getCallback(cbname, msg, type)
         if (type == 1) // success callback
             return function(tx, r)
         {
-            console.debug("succeded: " + cbname + " " + msg);
-            localStorage['added']--;
+            console.debug("succeeded: " + cbname + " " + msg);
+            if(dbtype==1)localStorage['added']--;
+			if(dbtype==2)localStorage['historyadded']--;
         }
         else
             // failure callback
@@ -857,7 +900,7 @@ function getCallback(cbname, msg, type)
         if (type == 1) // success callback
             return function(tx, r)
         {
-            console.debug("succeded: " + cbname + " " + msg);
+            console.debug("succeeded: " + cbname + " " + msg);
         }
         else
             // failure callback
