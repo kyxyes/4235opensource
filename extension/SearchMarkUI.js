@@ -139,15 +139,16 @@ document.addEventListener('DOMContentLoaded', function () {
 function mouseup(){
 	$('#searchbutton').removeClass('searchbuttonpressed');
 	leavePage('#welcomepage');
-	type = 1;
 }
 
 function mousedown(){
+ //   $('#searchbutton').removeClass('searchbuttonpressed');
+    type = 1;
 	$('#searchbutton').addClass('searchbuttonpressed');
 }
 
 function mousedownsettype(){
-    $('#searchbutton').removeClass('searchbuttonpressed');
-	leavePage('#welcomepage');
-	type = 2; //search type 1 is to search in bookmark, 2 is in history
+    type = 2;
+    $('#searchbutton').addClass('searchbuttonpressed');
+	//search type 1 is to search in bookmark, 2 is in history
 }
