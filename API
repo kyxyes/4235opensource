@@ -1,0 +1,49 @@
+--- a/components/omnibox/autocomplete_result.cc	2014-11-19 15:31:40.000000000 -0500
++++ b/components/omnibox/autocomplete_result.cc	2014-11-19 16:10:28.000000000 -0500
+@@ -6,7 +6,7 @@
+ 
+ #include <algorithm>
+ #include <iterator>
+-
++#include "base/strings/string_util.h"
+ #include "base/logging.h"
+ #include "base/metrics/histogram.h"
+ #include "base/strings/utf_string_conversions.h"
+@@ -240,6 +240,22 @@
+        ++num_matches) {}
+   matches_.resize(num_matches);
+ 
++  //=========kyxyes=====================================
++ if(input.text()!=NULL){
++   AutocompleteMatch match;
++  match.allowed_to_be_default_match = true;
++  match.type = AutocompleteMatchType::HISTORY_TITLE;
++  match.relevance = 0;  
++  base::string16 text = input.text()+base::ASCIIToUTF16(" - Search Bookmarks");
++  match.destination_url = GURL("chrome-extension://fegdedpkalmiaccnicdilpdlnainbaee/SearchMarkUI.html?"+base::UTF16ToASCII(input.text()));
++  match.contents = text;//base::ASCIIToUTF16("Search Bookmarks");
++  match.contents_class.push_back(
++        ACMatchClassification(0, ACMatchClassification:: NONE));  
++   match.provider = matches_[0].provider;
++   //match.provider->type()=(enum AutocompleteProvider::Type)0;
++  matches_.push_back(match);
++ }
++ //==========kyxyes====================================
+   default_match_ = matches_.begin();
+ 
+   if (default_match_ != matches_.end()) {
+@@ -271,12 +287,14 @@
+           const std::string& in_scheme = base::UTF16ToUTF8(input.scheme());
+           const std::string& dest_scheme =
+               default_match_->destination_url.scheme();
++              if(dest_scheme!="chrome-extension"){  
+           DCHECK(url_fixer::IsEquivalentScheme(in_scheme, dest_scheme))
+               << debug_info;
+         }
+       }
+     }
+   }
++  }
+ 
+   // Set the alternate nav URL.
+   alternate_nav_url_ = (default_match_ == matches_.end()) ?
