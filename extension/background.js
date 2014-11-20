@@ -27,7 +27,7 @@ SearchMarkDB.open = function()
 
 //Open the history database
 SearchHistoryDB.db = null;
-SearchHistoryDB.open = function();
+SearchHistoryDB.open = function()
 {
     var dbSize = 200 * 1024 * 1024; // 200 MB
     SearchHistoryDB.db =
@@ -519,7 +519,7 @@ function init()
         localStorage['initialized'] == 0) 
     {
         SearchMarkDB.createTable();
-        SearchHistoryDb.createTable();
+//        SearchHistoryDb.createTable();
 		
 		var microsecondsPerWeek = 1000 * 60 * 60 * 24 * 7;
         var oneWeekAgo = (new Date).getTime() - microsecondsPerWeek;
@@ -578,13 +578,14 @@ function cleanupStorage()
 function handleRequest(request, sender, callback)
 {
     if (request.method == 'search') {
+    	var date1=new Date();
         gPort = chrome.extension.connect( {name : "uiToBackend"});
-
         console.debug("search " + request.keywords);
-
         SearchMarkDB.doSearch(searchBookmarkedPagesCb, 
                               "'" + request.keywords + "'");
-        
+        var date2=new Date();
+        var time=date2.getTime()-date1.getTime();
+        speak("we spend "+time+" millisecond to get the search results!");
         callback();
     } else if (request.method == 'cached') {
         SearchMarkDB.getRawHtmlPage(request.bookmarkid, displayRawPage);
@@ -867,4 +868,50 @@ function getCallback(cbname, msg, type)
             console.log("  " + e.message);
         }
     }
+}
+
+//======================== SPEAK SECTION ==================
+var lastUtterance = '';
+var speaking = false;
+var globalUtteranceIndex = 0;
+
+if (localStorage['lastVersionUsed'] != '1') {
+  localStorage['lastVersionUsed'] = '1';
+  chrome.tabs.create({
+    url: chrome.extension.getURL('options.html')
+  });
+}
+
+function speak(utterance) {
+  if (speaking && utterance == lastUtterance) {
+    chrome.tts.stop();
+    return;
+  }
+
+  speaking = true;
+  lastUtterance = utterance;
+  globalUtteranceIndex++;
+  var utteranceIndex = globalUtteranceIndex;
+
+  var rate = localStorage['rate'] || 1.0;
+  var pitch = localStorage['pitch'] || 1.0;
+  var volume = localStorage['volume'] || 1.0;
+  var voice = localStorage['voice'];
+  chrome.tts.speak(
+      utterance,
+      {voiceName: voice,
+       rate: parseFloat(rate),
+       pitch: parseFloat(pitch),
+       volume: parseFloat(volume),
+       onEvent: function(evt) {
+         if (evt.type == 'end' ||
+             evt.type == 'interrupted' ||
+             evt.type == 'cancelled' ||
+             evt.type == 'error') {
+           if (utteranceIndex == globalUtteranceIndex) {
+             speaking = false;
+           }
+         }
+       }
+      });
 }
