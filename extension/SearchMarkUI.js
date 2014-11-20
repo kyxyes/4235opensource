@@ -42,6 +42,7 @@ function requestCachedPage(id) {
         function() {});
 }
 
+var type = 1;
 var searchbtnid = "'#searchbutton'";
 var searchbtneffect = "'searchbuttonpressed'";
 var resultspagename = "'#resultspage'";
@@ -71,7 +72,7 @@ function doSearch(searchwords) {
     '<div id="resultspagebtm"></div>');
 
     chrome.extension.sendRequest(
-        {method: 'search', keywords: searchwords}, 
+        {method: 'search', keywords: searchwords, searchtype: type}, 
         function() {});
 }
 
@@ -127,6 +128,11 @@ document.addEventListener('DOMContentLoaded', function () {
   var sb = document.getElementById('searchbutton');
   sb.addEventListener('mousedown', mousedown);
   sb.addEventListener('mouseup',mouseup);
+  
+  var sb1 = document.getElementById('searchbutton1');
+  sb1.addEventListener('mousedown', mousedownsettype);
+  sb1.addEventListener('mouseup',mouseup);
+  
   init();
 });
 
@@ -136,5 +142,13 @@ function mouseup(){
 }
 
 function mousedown(){
+ //   $('#searchbutton').removeClass('searchbuttonpressed');
+    type = 1;
 	$('#searchbutton').addClass('searchbuttonpressed');
+}
+
+function mousedownsettype(){
+    type = 2;
+    $('#searchbutton').addClass('searchbuttonpressed');
+	//search type 1 is to search in bookmark, 2 is in history
 }
