@@ -5,6 +5,10 @@ var SearchMarkDB = {};
 // History page database
 var SearchHistoryDB = {};
 
+//timer
+var startTime;
+var endTime;
+
 // Communicate with extension UI
 var gPort;
 
@@ -611,7 +615,9 @@ function cleanupStorage()
 function handleRequest(request, sender, callback)
 {
     if (request.method == 'search') {
-    	var date1=new Date();
+    	startTime=new Date();
+    	speak("Please wait for a moment, we are searching for you.");
+    	
         gPort = chrome.extension.connect( {name : "uiToBackend"});
         console.debug("search " + request.keywords);
 		if(request.searchtype == 1)
@@ -622,9 +628,7 @@ function handleRequest(request, sender, callback)
 	    if(request.searchtype == 2)
 	    SearchHistoryDB.doSearch(searchPagesCb, 
                               "'" + request.keywords + "'");
-        var date2=new Date();
-        var time=date2.getTime()-date1.getTime();
-        speak("we spend "+time+" millisecond to get the search results!");
+	    
         callback();
     } else if (request.method == 'cached') {
         SearchMarkDB.getRawHtmlPage(request.bookmarkid, displayRawPage);
@@ -665,6 +669,7 @@ function displayRawPage(tx, r)
 
 function searchPagesCb(tx, r)
 {
+    endTime=new Date();
     var result = {};
 
     for ( var i = 0; i < r.rows.length; i++) {
@@ -682,6 +687,9 @@ function searchPagesCb(tx, r)
     result.matchType = "DONE";
 
     gPort.postMessage(result);
+    
+    var time=endTime.getTime()-startTime.getTime();
+    speak("we spend "+time+" millisecond to get the search results!");
 }
 
 

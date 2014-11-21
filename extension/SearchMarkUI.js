@@ -55,25 +55,33 @@ var results_page_top_html =
     'class="searchbox"/>' +
     '<!-- search button -->' +
     '<button type="button" id="searchbutton" class="searchbutton"' +
-    'onmousedown="$(' + searchbtnid + ').addClass(' + searchbtneffect
-    + ')"' + 
-    'onmouseup="$(' + searchbtnid + ').removeClass('+ 
-    searchbtneffect + ');leavePage(' + resultspagename + ')">Search</button></th>' + 
+    '>Search</button></th>' + 
     '</tr></table>' +
     '</div>';
+
+
+// 'onmousedown="$(' + searchbtnid + ').addClass(' + searchbtneffect
+//+ ')"' + 
+//'onmouseup="$(' + searchbtnid + ').removeClass('+ 
+//searchbtneffect + ');leavePage(' + resultspagename + ')"
 
 // Take keywords from text box and send to
 // backend for searching.
 function doSearch(searchwords) {
-
+	//empty body
+	$('body').empty();
     $('body').append('<div id = "resultspage"></div>');
     $('#resultspage').append(results_page_top_html);
     $('#resultspage').append(
     '<div id="resultspagebtm"></div>');
-
+    //console.log('>>>>>>>>>>>>>1');
     chrome.extension.sendRequest(
         {method: 'search', keywords: searchwords, searchtype: type}, 
         function() {});
+    
+    var sb = document.getElementById('searchbutton');
+    sb.addEventListener('mousedown', mousedown);
+    sb.addEventListener('mouseup',mouseup);
 }
 
 function leavePage(pagename) 
@@ -96,6 +104,8 @@ function leavePage(pagename)
 //     page text matched, then result.text will contain 
 //     textual context.
 function processSearchResult(result) {
+	//console.log('>>>>>>>>>>>>>2');
+	//console.log('result matchType is'+result.matchType);
     if(result.matchType == "DONE") {
         $('body').css('cursor', 'auto');
         // search error?
