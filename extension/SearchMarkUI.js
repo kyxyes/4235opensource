@@ -38,7 +38,7 @@
 // Send request to backend for displaying a cached bookmark page
 function requestCachedPage(id) {
     chrome.extension.sendRequest(
-        {method: 'cached', bookmarkid: id}, 
+        {method: 'cached', pageid: id}, 
         function() {});
 }
 
@@ -46,6 +46,8 @@ var type = 1;
 var searchbtnid = "'#searchbutton'";
 var searchbtneffect = "'searchbuttonpressed'";
 var resultspagename = "'#resultspage'";
+//var SearchName = "Search in Bookmark";
+/*
 var results_page_top_html = 
     '<div id="topsearch">' +
     '<table><tr>' +
@@ -54,11 +56,11 @@ var results_page_top_html =
     '<th id = "thsearchbox"><input type="text" id="searchbox"' +
     'class="searchbox"/>' +
     '<!-- search button -->' +
-    '<button type="button" id="searchbutton" class="searchbutton"' +
-    '>Search</button></th>' + 
+    '<button type="button" id= "searchbutton" class="searchbutton"' +
+    '>' + SearchName + '</button></th>' + 
     '</tr></table>' +
     '</div>';
-
+*/
 
 // 'onmousedown="$(' + searchbtnid + ').addClass(' + searchbtneffect
 //+ ')"' + 
@@ -69,6 +71,37 @@ var results_page_top_html =
 // backend for searching.
 function doSearch(searchwords) {
 	//empty body
+	if(type == 1){
+	var results_page_top_html = 
+    '<div id="topsearch">' +
+    '<table><tr>' +
+    '<th id = "thlogo"><img src="images/logotext-results.png"/></th>' +
+    '<!-- search box -->' +
+    '<th id = "thsearchbox"><input type="text" id="searchbox"' +
+    'class="searchbox"/>' +
+    '<!-- search button -->' +
+    '<button type="button" id= "searchbutton" class="searchbutton"' +
+    '>' + "Search in Bookmark" + '</button></th>' + 
+    '</tr></table>' +
+    '</div>';
+	}
+	
+	else if(type == 2)
+	{
+	  var results_page_top_html = 
+    '<div id="topsearch">' +
+    '<table><tr>' +
+    '<th id = "thlogo"><img src="images/logotext-results.png"/></th>' +
+    '<!-- search box -->' +
+    '<th id = "thsearchbox"><input type="text" id="searchbox"' +
+    'class="searchbox"/>' +
+    '<!-- search button -->' +
+    '<button type="button" id= "searchbutton" class="searchbutton"' +
+    '>' + "Search in History" + '</button></th>' + 
+    '</tr></table>' +
+    '</div>';
+	}
+	 //alert(results_page_top_html);
 	$('body').empty();
     $('body').append('<div id = "resultspage"></div>');
     $('#resultspage').append(results_page_top_html);
@@ -79,9 +112,17 @@ function doSearch(searchwords) {
         {method: 'search', keywords: searchwords, searchtype: type}, 
         function() {});
     
+	
     var sb = document.getElementById('searchbutton');
+	if(type == 1){
     sb.addEventListener('mousedown', mousedown);
+    sb.addEventListener('mouseup',mouseup); 
+	}
+	else if(type == 2){
+    sb.addEventListener('mousedown', mousedownsettype);
     sb.addEventListener('mouseup',mouseup);
+	}
+
 }
 
 function leavePage(pagename) 
@@ -123,6 +164,7 @@ function processSearchResult(result) {
         });
 
     } else {
+	   // alert(result.url);
         resultString = 
             '<a href="' + result.url + '" target="_blank">' + result.title +'</a>' +
             '<br/>' + result.text + '<br/>' +
@@ -135,13 +177,13 @@ function processSearchResult(result) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-  var sb = document.getElementById('searchbutton');
-  sb.addEventListener('mousedown', mousedown);
-  sb.addEventListener('mouseup',mouseup);
-  
   var sb1 = document.getElementById('searchbutton1');
-  sb1.addEventListener('mousedown', mousedownsettype);
+  sb1.addEventListener('mousedown', mousedown);
   sb1.addEventListener('mouseup',mouseup);
+  
+  var sb2 = document.getElementById('searchbutton2');
+  sb2.addEventListener('mousedown', mousedownsettype);
+  sb2.addEventListener('mouseup',mouseup);
   
   init();
 });
@@ -162,3 +204,9 @@ function mousedownsettype(){
     $('#searchbutton').addClass('searchbuttonpressed');
 	//search type 1 is to search in bookmark, 2 is in history
 }
+
+
+
+
+
+

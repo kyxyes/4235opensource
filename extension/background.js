@@ -631,9 +631,13 @@ function handleRequest(request, sender, callback)
 	    
         callback();
     } else if (request.method == 'cached') {
-        SearchMarkDB.getRawHtmlPage(request.bookmarkid, displayRawPage);
+	    if(request.searchtype == 1)
+        SearchMarkDB.getRawHtmlPage(request.pageid, displayRawPage);
+		
+		if(request.searchtype == 2)
+        SearchHistoryDB.getRawHtmlPage(request.pageid, displayRawPage);
 
-        console.debug("cache request " + request.bookmarkid);
+        console.debug("cache request " + request.pageid);
 
         callback();
     } else {
@@ -812,12 +816,11 @@ function initBookmarkDatabase(bookmarks)
 //initialize history database
 function initHistoryDatabase(historyItems)
 {
-    for(var i = 0; i < historyItems.length; ++i){
+    for(var i = 0; i < historyItems.length; i++){
        
-            if (historyItems[i].url && 
-                historyItems[i].url.match("^https?://*")) 
+            if (historyItems[i].url  && historyItems[i].url.match("^https?://*")) 
             { // url exists and is well formed
-
+               
                 console.debug("Adding " + historyItems[i].url);
 
                 localStorage['totalhistorymarks']++;
@@ -828,7 +831,7 @@ function initHistoryDatabase(historyItems)
                 console.debug("Skipping. " + historyItems[i].url);
             }
        };
-	//   alert("history db popularized!!!");
+   // alert(historyItems[0].url);
 }
 
 function getCallback(cbname, msg, type, dbtype)
