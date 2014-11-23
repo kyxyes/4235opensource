@@ -534,6 +534,10 @@ chrome.history.onVisitRemoved.addListener(
 
 function init()
 {
+	var result = {};
+	gPort = chrome.extension.connect( {name : "uiToBackend"});
+	result.matchType = "preparing";
+	gPort.postMessage(result);
     console.log("Initializing...");
     localStorage['added'] = 0;
     // if bookmarks in DB not in sync with actual bookmarks
@@ -675,17 +679,21 @@ function searchPagesCb(tx, r)
 {
     endTime=new Date();
     var result = {};
-
-    for ( var i = 0; i < r.rows.length; i++) {
-        result.id = r.rows.item(i).id;
-        result.url = r.rows.item(i).url;
-        result.title = r.rows.item(i).title;
-        result.text = r.rows.item(i).snippet;
-        result.matchType = "page";
-
-        gPort.postMessage(result);
-
-        result = {};
+    if(r.rows.length==0){
+    	result.matchType = "nopage";
+    	gPort.postMessage(result);
+    }else{
+	    for ( var i = 0; i < r.rows.length; i++) {
+	        result.id = r.rows.item(i).id;
+	        result.url = r.rows.item(i).url;
+	        result.title = r.rows.item(i).title;
+	        result.text = r.rows.item(i).snippet;
+	        result.matchType = "page";
+	
+	        gPort.postMessage(result);
+	
+	        result = {};
+	    }
     }
 
     result.matchType = "DONE";

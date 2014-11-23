@@ -105,8 +105,10 @@ function doSearch(searchwords) {
 	$('body').empty();
     $('body').append('<div id = "resultspage"></div>');
     $('#resultspage').append(results_page_top_html);
+    var iconUrl = chrome.extension.getURL("images/loading_gif.gif"); 
+	var img = '<div align="center" id="resultLoading"><img src="' + iconUrl + '" /></div>';
     $('#resultspage').append(
-    '<div id="resultspagebtm"></div>');
+    '<div id="resultspagebtm">').append(img).append('</div>');
     //console.log('>>>>>>>>>>>>>1');
     chrome.extension.sendRequest(
         {method: 'search', keywords: searchwords, searchtype: type}, 
@@ -146,8 +148,13 @@ function leavePage(pagename)
 //     textual context.
 function processSearchResult(result) {
 	//console.log('>>>>>>>>>>>>>2');
-	//console.log('result matchType is'+result.matchType);
-    if(result.matchType == "DONE") {
+	//console.log('result matchtype is'+result.matchType);
+	$('#resultLoading').remove();
+	if(result.matchType == "nopage"){
+		var iconUrl = chrome.extension.getURL("images/failed_search.png"); 
+		resultString = 
+            '<div align="center"><img src="' + iconUrl + '" /></div>';
+	}else if(result.matchType == "DONE") {
         $('body').css('cursor', 'auto');
         // search error?
         if(result.error) {
