@@ -534,10 +534,6 @@ chrome.history.onVisitRemoved.addListener(
 
 function init()
 {
-	var result = {};
-	gPort = chrome.extension.connect( {name : "uiToBackend"});
-	result.matchType = "preparing";
-	gPort.postMessage(result);
     console.log("Initializing...");
     localStorage['added'] = 0;
     // if bookmarks in DB not in sync with actual bookmarks
@@ -701,7 +697,7 @@ function searchPagesCb(tx, r)
     gPort.postMessage(result);
     
     var time=endTime.getTime()-startTime.getTime();
-    speak("we spend "+time+" millisecond to get the search results!");
+    speak("we spend "+time+" millisecond to get "+r.rows.length+" entries of search results!");
 }
 
 
