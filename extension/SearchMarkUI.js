@@ -172,6 +172,7 @@ function processSearchResult(result) {
 
     } else {
 	   // alert(result.url);
+	    if(result.title =="")result.title = result.url;
         resultString = 
             '<a href="' + result.url + '" target="_blank">' + result.title +'</a>' +
             '<br/>' + result.text + '<br/>' +
