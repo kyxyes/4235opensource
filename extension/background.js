@@ -536,14 +536,16 @@ function init()
 {
     console.log("Initializing...");
     localStorage['added'] = 0;
+	var bookmarkdb = "bookmarkdb";
+	var historydb = "historydb";
     // if bookmarks in DB not in sync with actual bookmarks
     if(localStorage['added'] && localStorage['totalbookmarks'] &&
        localStorage['added'] != localStorage['totalbookmarks'])
-        cleanupStorage();
+        cleanupStorage(bookmarkdb);
 		
 	if(localStorage['historyadded'] && localStorage['totalhistory'] &&
        localStorage['historyadded'] != localStorage['totalhistory'])
-        cleanupStorage();
+        cleanupStorage(historydb);
 
     // initialize once only. Populate the database
     // by retrieving and storing bookmarked pages, and
@@ -591,21 +593,38 @@ function init()
 function doUpgrade()
 {
     if(localStorage['oldversion'] < 2.4)
-        cleanupStorage();
+        cleanupStorage("bothdb");
 }
 
 // clean up stored configuration variables
-function cleanupStorage()
+// clean type: clean both database , clean bookmark database, or clean history database
+// bothdb,bookmarkdb,historydb
+function cleanupStorage(cleantype)
 {
     console.log("Cleaning up...");
-
+    
+	if(cleantype == "bothdb"){
     console.log("Clearing database tables");
     SearchMarkDB.clear();
 	SearchHistoryDB.clear();
-
     console.log("Removing the tables");
     SearchMarkDB.purge();
 	SearchHistoryDB.purge();
+	}
+	
+	else if(cleantype == "bookmarkdb"){
+	console.log("Clearing database tables");
+    SearchMarkDB.clear();
+    console.log("Removing the tables");
+	SearchHistoryDB.purge();
+	}
+	
+	else if(cleantype == "historydb"){
+    console.log("Clearing database tables");
+	SearchHistoryDB.clear();
+    console.log("Removing the tables");
+	SearchHistoryDB.purge();
+	}
 
     console.log("Setting to 'not initialized'");
     localStorage['initialized'] = 0;
