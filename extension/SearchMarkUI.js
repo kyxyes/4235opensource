@@ -35,6 +35,19 @@
         });
     }//);
 
+
+    function initfromCr(){  //init  directly from  Chrome Omnibox 
+        chrome.extension.onConnect.addListener(function(port){
+            if(port.name!="uiToBackend"){
+                console.log("Invalid port name:" +port.name);
+                return;
+            }
+            port.onMessage.addListener(function(result){
+               processSearchResult(result);
+            });
+        });
+    }
+
 // Send request to backend for displaying a cached bookmark page
 function requestCachedPage(id) {
     chrome.extension.sendRequest(
@@ -43,6 +56,7 @@ function requestCachedPage(id) {
 }
 
 var type = 1;
+var dst_url = "chrome-extension://fegdedpkalmiaccnicdilpdlnainbaee/SearchMarkUI.html";
 var searchbtnid = "'#searchbutton'";
 var searchbtneffect = "'searchbuttonpressed'";
 var resultspagename = "'#resultspage'";
@@ -192,9 +206,27 @@ document.addEventListener('DOMContentLoaded', function () {
   var sb2 = document.getElementById('searchbutton2');
   sb2.addEventListener('mousedown', mousedownsettype);
   sb2.addEventListener('mouseup',mouseup);
-  
+  if(dst_url!=window.location.href){
+  getOmnixboxUrl();
+  }else{
   init();
+  }
 });
+
+function getOmnixboxUrl(){
+    // var dst_url = "chrome-extension://fegdedpkalmiaccnicdilpdlnainbaee/SearchMarkUI.html";
+    var url = window.location.href;
+    var regUrl = new RegExp(dst_url+"?[^\s]");
+    if(url.match(regUrl)){
+        var index = url.indexOf("?");
+        var typekeyword = url.substr(index+1);
+        var index_tk = typekeyword.indexOf(":");
+        type = typekeyword.substr(0,index_tk);
+        var keyword = typekeyword.substr(index_tk+1);
+        initfromCr();
+        doSearch(keyword);
+    }
+}
 
 function mouseup(){
 	$('#searchbutton').removeClass('searchbuttonpressed');
