@@ -1,5 +1,5 @@
---- a/components/omnibox/autocomplete_result.cc	2014-11-24 13:51:28.000000000 -0500
-+++ a/components/omnibox/autocomplete_result.cc	2014-11-24 13:49:57.000000000 -0500
+--- autocomplete_result_bf.cc 2014-11-27 17:18:43.000000000 -0500
++++ autocomplete_result_af.cc 2014-11-27 17:25:40.000000000 -0500
 @@ -6,7 +6,7 @@
  
  #include <algorithm>
@@ -9,14 +9,11 @@
  #include "base/logging.h"
  #include "base/metrics/histogram.h"
  #include "base/strings/utf_string_conversions.h"
-@@ -238,8 +238,31 @@
-   for (num_matches = 0u; (num_matches < max_num_matches) &&
+@@ -239,6 +239,40 @@
         (comparing_object.GetDemotedRelevance(*match_at(num_matches)) > 0);
         ++num_matches) {}
--  matches_.resize(num_matches);
--
-+  matches_.resize(num_matches);  //kyxyes
-+  //=========kyxyes=====================================
+   matches_.resize(num_matches);
++  //=========kyxyes_Bookmarks_History=====================================
 + for (ACMatches::iterator i(matches_.begin()); i != matches_.end();){
 +  if(i->type==AutocompleteMatchType::HISTORY_BODY){
 +    i=matches_.erase(i);
@@ -27,27 +24,37 @@
 +  }
 +
 + if(input.text()!=NULL){
-+   AutocompleteMatch match;
-+  match.allowed_to_be_default_match = true;
-+  match.type = AutocompleteMatchType::HISTORY_BODY;
-+  match.relevance = 0;  //即使最高也不加入relevance排序
-+  base::string16 text = input.text()+base::ASCIIToUTF16(" - Search Bookmarks");//(input.text()==NULL) ? base::ASCIIToUTF16("Search Bookmarks"): input.text()+base::ASCIIToUTF16(" - Search Bookmarks");
-+  match.destination_url = GURL("/://fegdedpkalmiaccnicdilpdlnainbaee/SearchMarkUI.html?"+base::UTF16ToASCII(input.text()));
-+  match.contents = text;//base::ASCIIToUTF16("Search Bookmarks");
-+  match.contents_class.push_back(
-+        ACMatchClassification(0, ACMatchClassification:: NONE));  //DIM鼠标移入就隐形
-+   match.provider = matches_[0].provider;
-+   matches_.push_back(match);
++   AutocompleteMatch match_b, match_h;
++  match_b.allowed_to_be_default_match = true;
++  match_h.allowed_to_be_default_match = true;
++  match_b.type = AutocompleteMatchType::HISTORY_BODY;
++  match_h.type = AutocompleteMatchType::HISTORY_BODY;
++  match_b.relevance = 0;  
++  match_h.relevance = 0;
++  base::string16 text_b = input.text()+base::ASCIIToUTF16(" - Search Bookmarks");//(input.text()==NULL) ? base::ASCIIToUTF16("Search Bookmarks"): input.text()+base::ASCIIToUTF16(" - Search Bookmarks");
++  base::string16 text_h = input.text()+base::ASCIIToUTF16(" - Search History");
++  match_b.destination_url =GURL("chrome-extension://fegdedpkalmiaccnicdilpdlnainbaee/SearchMarkUI.html?1:"+base::UTF16ToASCII(input.text()));
++  match_h.destination_url = GURL("chrome-extension://fegdedpkalmiaccnicdilpdlnainbaee/SearchMarkUI.html?2:"+base::UTF16ToASCII(input.text()));
++  match_b.contents = text_b;//base::ASCIIToUTF16("Search Bookmarks");
++  match_h.contents = text_h;
++  match_b.contents_class.push_back(
++        ACMatchClassification(0, ACMatchClassification:: NONE));  
++  match_h.contents_class.push_back(
++        ACMatchClassification(0, ACMatchClassification::NONE));
++   match_b.provider = matches_[0].provider;
++   match_h.provider =matches_[0].provider;
++   matches_.push_back(match_b);
++   matches_.push_back(match_h);
 + }
 + //==========kyxyes====================================
+ 
    default_match_ = matches_.begin();
  
-   if (default_match_ != matches_.end()) {
-@@ -271,12 +294,14 @@
+@@ -271,12 +305,14 @@
            const std::string& in_scheme = base::UTF16ToUTF8(input.scheme());
            const std::string& dest_scheme =
                default_match_->destination_url.scheme();
-+              if(dest_scheme!="chrome-extension"){  //kyx这边是DCHECK scheme(hhttp,ftp chrome)输入是否和dest的scheme一致
++              if(dest_scheme!="chrome-extension"){  //kyx here is DCHECK scheme(hhttp,ftp chrome) make sure input is the same 
            DCHECK(url_fixer::IsEquivalentScheme(in_scheme, dest_scheme))
                << debug_info;
          }
