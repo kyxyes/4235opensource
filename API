@@ -1,5 +1,5 @@
---- autocomplete_result_bf.cc 2014-11-27 17:18:43.000000000 -0500
-+++ autocomplete_result_af.cc 2014-11-27 17:25:40.000000000 -0500
+--- a/components/omnibox/autocomplete_result.cc 2014-11-27 17:18:43.000000000 -0500
++++ b/components/omnibox/autocomplete_result.cc 2014-11-27 17:25:40.000000000 -0500
 @@ -6,7 +6,7 @@
  
  #include <algorithm>
