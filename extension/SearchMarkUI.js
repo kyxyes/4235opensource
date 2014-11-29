@@ -56,7 +56,8 @@ function requestCachedPage(id) {
 }
 
 var type = 1;
-var dst_url = "chrome-extension://fegdedpkalmiaccnicdilpdlnainbaee/SearchMarkUI.html";
+var extensionid = chrome.runtime.id;
+var dst_url = "chrome-extension://"+extensionid+"/SearchMarkUI.html";
 var searchbtnid = "'#searchbutton'";
 var searchbtneffect = "'searchbuttonpressed'";
 var resultspagename = "'#resultspage'";
