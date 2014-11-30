@@ -1,5 +1,6 @@
 // =============== GLOBALS ==============
-
+// to identify differnt tab
+var tab;
 // Bookmarked page database
 var SearchMarkDB = {};
 // History page database
@@ -403,10 +404,10 @@ SearchHistoryDB.purge =
 
 // open the database each time extension loads.
 SearchMarkDB.open();
-console.debug("Opened SearchMark database.");
+//console.debug("Opened SearchMark database.");
 
 SearchHistoryDB.open();
-console.debug("Opened SearchHistory database.");
+//console.debug("Opened SearchHistory database.");
 
 localStorage['newversion'] = 2.5;  // what is the meaning of this ??? 
 
@@ -423,8 +424,8 @@ if(localStorage['newversion'] > localStorage['oldversion'])
     // will not be true for new installs
     if(localStorage['initialized'])
     { // already installed. Do upgrade.
-        console.log("Upgrading to version " +
-                    localStorage['newversion']);
+       // console.log("Upgrading to version " +
+       //             localStorage['newversion']);
 
         doUpgrade();
     }
@@ -432,7 +433,7 @@ if(localStorage['newversion'] > localStorage['oldversion'])
     localStorage['oldversion'] = localStorage['newversion'];
 }
 
-init();
+//init();
 
 chrome.browserAction.onClicked.addListener(
     function(tab)
@@ -535,7 +536,7 @@ chrome.history.onVisitRemoved.addListener(
 
 function init()
 {
-    console.log("Initializing...");
+//    console.log("Initializing...");
     localStorage['added'] = 0;
 	var bookmarkdb = "bookmarkdb";
 	var historydb = "historydb";
@@ -602,32 +603,32 @@ function doUpgrade()
 // bothdb,bookmarkdb,historydb
 function cleanupStorage(cleantype)
 {
-    console.log("Cleaning up...");
+//    console.log("Cleaning up...");
     
 	if(cleantype == "bothdb"){
-    console.log("Clearing database tables");
+//    console.log("Clearing database tables");
     SearchMarkDB.clear();
 	SearchHistoryDB.clear();
-    console.log("Removing the tables");
+//    console.log("Removing the tables");
     SearchMarkDB.purge();
 	SearchHistoryDB.purge();
 	}
 	
 	else if(cleantype == "bookmarkdb"){
-	console.log("Clearing database tables");
+//	console.log("Clearing database tables");
     SearchMarkDB.clear();
-    console.log("Removing the tables");
+//    console.log("Removing the tables");
 	SearchHistoryDB.purge();
 	}
 	
 	else if(cleantype == "historydb"){
-    console.log("Clearing database tables");
+//    console.log("Clearing database tables");
 	SearchHistoryDB.clear();
-    console.log("Removing the tables");
+//    console.log("Removing the tables");
 	SearchHistoryDB.purge();
 	}
 
-    console.log("Setting to 'not initialized'");
+//    console.log("Setting to 'not initialized'");
     localStorage['initialized'] = 0;
 }
 
@@ -636,12 +637,13 @@ function handleRequest(request, sender, callback)
 {
     if (request.method == 'search') {
     	startTime=new Date();
+    	tab=request.tab;
     	speak("Please wait for a moment, we are searching for you.");
     	
 		keywords = request.keywords;
 		
         gPort = chrome.extension.connect( {name : "uiToBackend"});
-        console.debug("search " + request.keywords);
+//        console.debug("search " + request.keywords);
 		if(request.searchtype == 1)
         SearchMarkDB.doSearch(searchPagesCb, 
                               "'" + request.keywords + "'");
@@ -659,7 +661,7 @@ function handleRequest(request, sender, callback)
 		if(request.searchtype == 2)
         SearchHistoryDB.getRawHtmlPage(request.pageid, displayRawPage);
 
-        console.debug("cache request " + request.pageid);
+//        console.debug("cache request " + request.pageid);
 
         callback();
     } else {
@@ -687,9 +689,9 @@ function displayRawPage(tx, r)
             });
 
     } else {
-        console.log("Unexpected error: this page should have " + 
-                    "been cached. Please file a bug report " + 
-                    "at <todo:put github url here>");
+        //console.log("Unexpected error: this page should have " + 
+        //            "been cached. Please file a bug report " + 
+        //           "at <todo:put github url here>");
     }
 }
 
@@ -716,7 +718,7 @@ function searchPagesCb(tx, r)
     endTime=new Date();
     var result = {};
     if(r.rows.length==0){
-    	result.matchType = "nopage";
+    	result.matchType = "nopage|"+tab;
     	gPort.postMessage(result);
     }else{
 	    
@@ -756,7 +758,7 @@ function searchPagesCb(tx, r)
 	        result.url = sortedresult[i].url;
 	        result.title = sortedresult[i].title;
 	        result.text = sortedresult[i].text;
-	        result.matchType = "page";
+	        result.matchType = "page|"+tab;
 			gPort.postMessage(result);
 	
 	        result = {};
@@ -779,7 +781,7 @@ function searchPagesCb(tx, r)
 		
     }
 
-    result.matchType = "DONE";
+    result.matchType = "DONE|"+tab;
 
     gPort.postMessage(result);
     
@@ -836,7 +838,7 @@ function getAndStoreBookmarkContent(bookmark, storeInDB)
                     this.abort();
                 }
             } catch (e) {
-                console.log(e.message);
+//                console.log(e.message);
                 storeInDB(bookmark.id, bookmark.url, bookmark.title,
                           "", "");
             }
@@ -844,7 +846,7 @@ function getAndStoreBookmarkContent(bookmark, storeInDB)
 
         xhr.send();
     } catch (e) {
-        console.log(e.message + bookmark.url);
+//        console.log(e.message + bookmark.url);
         storeInDB(bookmark.id, bookmark.url, bookmark.title, "", "");
     }
 }
@@ -870,7 +872,7 @@ function getAndStoreHistoryContent(historyItem, storeInDB)
                     this.abort();
                 }
             } catch (e) {
-                console.log(e.message);
+//                console.log(e.message);
                 storeInDB(historyItem.id, historyItem.url, historyItem.title,
                           "", "");
             }
@@ -878,7 +880,7 @@ function getAndStoreHistoryContent(historyItem, storeInDB)
 
         xhr.send();
     } catch (e) {
-        console.log(e.message + historyItem.url);
+//        console.log(e.message + historyItem.url);
         storeInDB(historyItem.id, historyItem.url, historyItem.title, "", "");
     }
 }
@@ -892,14 +894,14 @@ function initBookmarkDatabase(bookmarks)
                 bookmark.url.match("^https?://*")) 
             { // url exists and is well formed
 
-                console.debug("Adding " + bookmark.url);
+//                console.debug("Adding " + bookmark.url);
 
                 localStorage['totalbookmarks']++;
 
                 getAndStoreBookmarkContent(bookmark,
                                            SearchMarkDB.addBookmarkedPage);
             } else {
-                console.debug("Skipping. " + bookmark.url);
+//                console.debug("Skipping. " + bookmark.url);
             }
 
             if (bookmark.children)
@@ -915,14 +917,14 @@ function initHistoryDatabase(historyItems)
             if (historyItems[i].url  && historyItems[i].url.match("^https?://*")) 
             { // url exists and is well formed
                
-                console.debug("Adding " + historyItems[i].url);
+//                console.debug("Adding " + historyItems[i].url);
 
                 localStorage['totalhistorymarks']++;
 
                 getAndStoreHistoryContent(historyItems[i],
                            SearchHistoryDB.addHistoryPage);
             } else {
-                console.debug("Skipping. " + historyItems[i].url);
+//                console.debug("Skipping. " + historyItems[i].url);
             }
        };
    // alert(historyItems[0].url);
@@ -936,28 +938,28 @@ function getCallback(cbname, msg, type, dbtype)
             return function(tx, r)
         {
             for ( var i = 0; i < r.rows.length; i++) {
-                console.log("Stored. " + msg + " " +
-                            r.rows.item(i).url);
+               // console.log("Stored. " + msg + " " +
+               //             r.rows.item(i).url);
             }
         }
         else
             return function(tx, r)
         {
-            console.debug("failed: " + cbname + " " + msg);
-            console.log("  " + e.message);
+           // console.debug("failed: " + cbname + " " + msg);
+           // console.log("  " + e.message);
         }            
         break;
     case "search pages":
         if (type == 1) // success callback
             return function(tx, r)
         {
-            console.debug("succeeded: " + cbname + " " + msg);
+//            console.debug("succeeded: " + cbname + " " + msg);
         }
         else
             return function(tx, e)
         {
-            console.debug("failed: " + cbname + " " + msg);
-            console.log("  " + e.message);
+           // console.debug("failed: " + cbname + " " + msg);
+           // console.log("  " + e.message);
 
             // search pages failed, tell user
             var result = {};
@@ -974,7 +976,7 @@ function getCallback(cbname, msg, type, dbtype)
         if (type == 1) // success callback
             return function(tx, r)
         {
-            console.debug("succeded: " + cbname + " " + msg);
+//            console.debug("succeded: " + cbname + " " + msg);
             if(dbtype==1)localStorage['added']++;
 			if(dbtype==2)localStorage['historyadded']++;
         }
@@ -982,15 +984,15 @@ function getCallback(cbname, msg, type, dbtype)
             // failure callback
             return function(tx, e)
         {
-            console.debug("failed: " + cbname + " " + msg);
-            console.log("  " + e.message);
+//            console.debug("failed: " + cbname + " " + msg);
+//            console.log("  " + e.message);
         }
         break;
     case "remove page raw":
         if (type == 1) // success callback
             return function(tx, r)
         {
-            console.debug("succeeded: " + cbname + " " + msg);
+//            console.debug("succeeded: " + cbname + " " + msg);
             if(dbtype==1)localStorage['added']--;
 			if(dbtype==2)localStorage['historyadded']--;
         }
@@ -998,22 +1000,22 @@ function getCallback(cbname, msg, type, dbtype)
             // failure callback
             return function(tx, e)
         {
-            console.debug("failed: " + cbname + " " + msg);
-            console.log("  " + e.message);
+//            console.debug("failed: " + cbname + " " + msg);
+//            console.log("  " + e.message);
         }
         break;
     default:
         if (type == 1) // success callback
             return function(tx, r)
         {
-            console.debug("succeeded: " + cbname + " " + msg);
+//            console.debug("succeeded: " + cbname + " " + msg);
         }
         else
             // failure callback
             return function(tx, e)
         {
-            console.debug("failed: " + cbname + " " + msg);
-            console.log("  " + e.message);
+//            console.debug("failed: " + cbname + " " + msg);
+//            console.log("  " + e.message);
         }
     }
 }
