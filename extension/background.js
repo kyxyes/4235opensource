@@ -11,6 +11,7 @@ var endTime;
 
 // Communicate with extension UI
 var gPort;
+var keywords;
 
 // Used to highlight searched keywords in results
 var uiHighlightStart = '<span class=highlight>';
@@ -738,6 +739,9 @@ function removeHTMLfromPage(page)
 
     // Remove comment markers
     pagetxt = pagetxt.replace(/(<!--|-->)/g, " ");
+	
+	// Remove stop words
+	pagetxt = pagetxt.replace(/(am|are|is|be|was|were|of|the|he|she|they|them|I|in|on|to|at|and|or|for)/g, " ");
 
     // After all the filtering, need to fix up spaces again
     pagetxt = pagetxt.replace(/\s+/gm, " ");
