@@ -433,7 +433,7 @@ if(localStorage['newversion'] > localStorage['oldversion'])
     localStorage['oldversion'] = localStorage['newversion'];
 }
 
-//init();
+init();
 
 chrome.browserAction.onClicked.addListener(
     function(tab)
