@@ -20,11 +20,11 @@ function init() {
 	localStorage['uivisits']++;
 
 	/* stop showing tip after 2 UI visits */
-	if (localStorage['uivisits'] < 4)
-		$('#welcomesearchbox').append(
-				'<div id="tiparea"><p><b>Tip:</b> Use the "*". '
-						+ 'For example, to search for words beginning '
-						+ 'with "mar", simply type "mar*".</div>');
+	// if (localStorage['uivisits'] < 4)
+	// 	$('#welcomesearchbox').append(
+	// 			'<div id="tiparea"><p><b>Tip:</b> Use the "*". '
+	// 					+ 'For example, to search for words beginning '
+	// 					+ 'with "mar", simply type "mar*".</div>');
 
 	if (localStorage['uivisits'] == 3)
 		$('#tiparea').delay(3000).fadeOut('slow', function() {
@@ -72,10 +72,10 @@ function doSearch(searchwords) {
 	if (type == 1) {
 		var results_page_top_html = '<div id="topsearch">'
 				+ '<table><tr>'
-				+ '<th id = "thlogo"><img src="images/logotext-results.png"/></th>'
+				//+ '<th id = "thlogo"><img src="images/logotext-results.png"/></th>'
 				+ '<!-- search box -->'
 				+ '<th id = "thsearchbox"><input type="text" id="searchbox"'
-				+ 'class="searchbox"/>'
+				+ 'class="searchboxresult" style="float:center"/>'
 				+ '<!-- search button -->'
 				+ '<button type="button" id= "searchbutton" class="searchbutton"'
 				+ '>' + "Search in Bookmark" + '</button></th>'
@@ -85,10 +85,10 @@ function doSearch(searchwords) {
 	else if (type == 2) {
 		var results_page_top_html = '<div id="topsearch">'
 				+ '<table><tr>'
-				+ '<th id = "thlogo"><img src="images/logotext-results.png"/></th>'
+				//+ '<th id = "thlogo"><img src="images/logotext-results.png"/></th>'
 				+ '<!-- search box -->'
 				+ '<th id = "thsearchbox"><input type="text" id="searchbox"'
-				+ 'class="searchbox"/>'
+				+ 'class="searchboxresult"/>'
 				+ '<!-- search button -->'
 				+ '<button type="button" id= "searchbutton" class="searchbutton"'
 				+ '>' + "Search in History" + '</button></th>'
