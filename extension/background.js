@@ -322,8 +322,8 @@ SearchHistoryDB.doSearch =
                           '", "' + uiEllipses +
                           '", -1, ' + uiContextLen + ') ' +
                           'as snippet FROM pages WHERE ' + 
-                          'pages MATCH ' + keywords + ' ' +
-                          'ORDER BY time DESC',
+                          'pages MATCH ' + keywords + ' ' ,
+                       //   'ORDER BY score DESC',
                           [],
                           callback,
                           getCallback("search pages", "malformed input", 0,2));
@@ -638,6 +638,8 @@ function handleRequest(request, sender, callback)
     	startTime=new Date();
     	speak("Please wait for a moment, we are searching for you.");
     	
+		keywords = request.keywords;
+		
         gPort = chrome.extension.connect( {name : "uiToBackend"});
         console.debug("search " + request.keywords);
 		if(request.searchtype == 1)
@@ -691,6 +693,24 @@ function displayRawPage(tx, r)
     }
 }
 
+/*
+function quickSort(copyresult) {
+             if (copyresult.length <= 1) { return copyresult; }
+             var pivotIndex = Math.floor(copyresult.length / 2);
+             var pivot = copyresult.splice(pivotIndex, 1)[0].times;
+             var left = [];
+             var right = [];
+             for (var i = 0; i < copyresult.length; i++){
+              if (copyresult[i].times < pivot) {
+              left.push(copyresult[i]);
+              } else {
+              right.push(copyresult[i]);
+               }
+               }
+            return quickSort(left).concat(copyresult[pivotIndex], quickSort(right));
+            };
+*/
+
 function searchPagesCb(tx, r)
 {
     endTime=new Date();
@@ -699,17 +719,64 @@ function searchPagesCb(tx, r)
     	result.matchType = "nopage";
     	gPort.postMessage(result);
     }else{
-	    for ( var i = 0; i < r.rows.length; i++) {
+	    
+		var reg = new RegExp(keywords,"gi");
+		
+	    var copyresult = new Array();
+		var sortedresult = new Array();
+		
+        for ( var i = 0; i < r.rows.length; i++) { 
+			sortedresult[i] = new Object();
+		//	sortedresult[i] = new Object();
+	        var c = String(r.rows.item(i).snippet).match(reg);	
+		    sortedresult[i].times = c.length;
+	        sortedresult[i].id = r.rows.item(i).id;
+	        sortedresult[i].url = r.rows.item(i).url;
+			//alert(copyresult[i].url);
+	        sortedresult[i].title = r.rows.item(i).title;
+	        sortedresult[i].text = r.rows.item(i).snippet;
+	      //  sortedresult[i].matchType = "page";
+	    } 
+	    
+		for (var i = 0; i < sortedresult.length - 1; i++) {
+            for (var j = 0; j < sortedresult.length - 1 - i; j++) {
+                if (sortedresult[j].times > sortedresult[j + 1].times) {
+					    var tmp = new Object();
+                        tmp = sortedresult[j];
+                        sortedresult[j] = sortedresult[j + 1];
+                        sortedresult[j + 1] = tmp;
+                    }
+                }
+            }
+
+
+		 for ( var i = r.rows.length-1 ; i >= 0; i--) { 
+			 
+	        result.id = sortedresult[i].id;
+	        result.url = sortedresult[i].url;
+	        result.title = sortedresult[i].title;
+	        result.text = sortedresult[i].text;
+	        result.matchType = "page";
+			gPort.postMessage(result);
+	
+	        result = {};
+	    } 
+		
+		
+	/*    for ( var i = 0; i < r.rows.length; i++) {
 	        result.id = r.rows.item(i).id;
 	        result.url = r.rows.item(i).url;
 	        result.title = r.rows.item(i).title;
 	        result.text = r.rows.item(i).snippet;
 	        result.matchType = "page";
-	
+			
 	        gPort.postMessage(result);
 	
 	        result = {};
-	    }
+	    }  */ 
+		
+		
+		
     }
 
     result.matchType = "DONE";
@@ -741,7 +808,7 @@ function removeHTMLfromPage(page)
     pagetxt = pagetxt.replace(/(<!--|-->)/g, " ");
 	
 	// Remove stop words
-	pagetxt = pagetxt.replace(/(am|are|is|be|was|were|of|the|he|she|they|them|I|in|on|to|at|and|or|for)/g, " ");
+	//pagetxt = pagetxt.replace(/(am|are|is|be|was|were|of|the|he|she|they|them|I|in|on|to|at|and|or|for)/g, " ");
 
     // After all the filtering, need to fix up spaces again
     pagetxt = pagetxt.replace(/\s+/gm, " ");
