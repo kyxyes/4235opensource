@@ -8,7 +8,7 @@ body
 .searchbox 
 {
   border:1px solid #d1c7ac;
-  width: 230px;
+  width: 530px;
   color:#333333;
   padding:3px;
   margin-right:4px;
@@ -18,13 +18,14 @@ body
 .searchbutton 
 { 
   border:1px solid #d1c7ac;
-  color:#444444;
+  color:#FDFDFC;
   padding:3px;
   margin-right:4px;
   margin-bottom:8px;
   font-weight:bold;
   border-style:outset;
-  background-color:#eeeeee;
+  background-color:#4285f4;
+  font-family: 'Lato', sans-serif;
   }
 
 .searchbuttonpressed
@@ -61,7 +62,7 @@ table
 #floater
 {
   float:left;
-  height:50%;
+  height:20%;
   }
 
 #welcomesearchbox
@@ -77,7 +78,7 @@ table
   height: 100%;
   width: 100%;
   text-align: center;
-  background: url("images/welcome-template.png") center
+  /*background: url("images/welcome-template.png") center*/
   no-repeat fixed;
   }
 
@@ -121,3 +122,8 @@ table
   width: 3.5in;
   margin: auto;
   }
+.welcome_page_font{
+   font-size: 60;
+  font-family: 'Poiret One', cursive;
+
+}  

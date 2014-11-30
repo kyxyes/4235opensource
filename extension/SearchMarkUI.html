@@ -1,4 +1,10 @@
-<html>
+<html ng-app="ui.bootstrap.demo">
+<link href='http://fonts.googleapis.com/css?family=Poiret+One' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+ <script src="angular.js"></script>
+    <script src="ui-bootstrap-tpls-0.12.0.js"></script>
+    <script src="angularjs.js"></script>
+    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
 <head>
 
 <title>Search Bookmarked Pages</title>
@@ -20,14 +26,40 @@
   <div id="welcomesearchbox">
 
     <!-- search box -->
+    <div class="welcome_page_font" style="float:center"><p>CrSearch</p></Div>
     <input type="text" id="searchbox" class="searchbox"/>
 
     <!-- search button -->
+    <br>
     <button type="button" id="searchbutton1" class="searchbutton">
     Search in Bookmark</button>
 	
 	<button type="button" id="searchbutton2" class="searchbutton">
     Search in History</button>
+
+  <!--tips_button-->
+<div ng-controller="ModalDemoCtrl">
+    <script type="text/ng-template" id="myModalContent.html">
+        <div class="modal-header">
+            
+        </div>
+        <div class="modal-body">
+            <ul>
+                <li ng-repeat="item in items" style="list-style-type:none">
+                     <p>{{ item }}</p>
+                </li>
+            </ul>
+          
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" ng-click="ok()">OK</button>
+        </div>
+    </script>
+
+    <button class="btn btn-default" ng-click="open()">help</button>
+</div>
+
+  <!--tips_button-->  
     
   </div>
   </div>

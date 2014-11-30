@@ -5,14 +5,13 @@
       "persistent": true
    },
    "browser_action": {
-      "default_icon": "images/logo48.png",
+      "default_icon": "images/logo128.png",
       "default_title": "Search Bookmarked Page Contents"
    },
    "description": "Find your bookmarked pages\n  by searching not only their titles and web addresses, but also their\n  contents!",
    "icons": {
       "128": "images/logo128.png",
-      "16": "images/logo16.png",
-      "48": "images/logo48.png"
+      "16": "images/logo16.png"
    },
    "minimum_chrome_version": "5.0",
    "name": "SearchMark",
