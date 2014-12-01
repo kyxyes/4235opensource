@@ -18,16 +18,17 @@ body
  .searchboxresult 
 {
   border:1px solid #d1c7ac;
-  width: 530px;
+  width: 40%;
   color:#333333;
   padding:3px;
   margin-right:4px;
-  margin-left: 330px;
+  margin-left: 30px;
   margin-bottom:8px;
   } 
 
 .searchbutton 
 { 
+font-weight: lighter;  
 width: 150px;
 height: 23px;
 border: 1px solid #d1c7ac;
@@ -95,14 +96,15 @@ table
   width: 100%;
   text-align: center;
   /*background: url("images/welcome-template.png") center*/
-  no-repeat fixed;
+  /*no-repeat fixed;*/
   }
 
 #topsearch
 { 
   height:1in;
   margin: 0px;
-  padding: 0px;
+  margin-left: 35%;
+  padding: 0px auto;
   text-align: center;
   }
 
