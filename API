@@ -33,8 +33,8 @@
 +  match_h.relevance = 0;
 +  base::string16 text_b = input.text()+base::ASCIIToUTF16(" - Search Bookmarks");//(input.text()==NULL) ? base::ASCIIToUTF16("Search Bookmarks"): input.text()+base::ASCIIToUTF16(" - Search Bookmarks");
 +  base::string16 text_h = input.text()+base::ASCIIToUTF16(" - Search History");
-+  match_b.destination_url =GURL("chrome-extension://fegdedpkalmiaccnicdilpdlnainbaee/SearchMarkUI.html?1:"+base::UTF16ToASCII(input.text()));
-+  match_h.destination_url = GURL("chrome-extension://fegdedpkalmiaccnicdilpdlnainbaee/SearchMarkUI.html?2:"+base::UTF16ToASCII(input.text()));
++  match_b.destination_url =GURL("chrome-extension://cgioaghhgjcomjbmbkdljmfmkdncobbk/SearchMarkUI.html?1:"+base::UTF16ToASCII(input.text()));
++  match_h.destination_url = GURL("chrome-extension://cgioaghhgjcomjbmbkdljmfmkdncobbk/SearchMarkUI.html?2:"+base::UTF16ToASCII(input.text()));
 +  match_b.contents = text_b;//base::ASCIIToUTF16("Search Bookmarks");
 +  match_h.contents = text_h;
 +  match_b.contents_class.push_back(
