@@ -14,7 +14,7 @@
       "16": "images/logo16.png"
    },
    "minimum_chrome_version": "5.0",
-   "name": "SearchMark",
+   "name": "CrSearch",
    "permissions": [ "tabs", "bookmarks", "history", "tts","background", "http://*/*", "https://*/*", "unlimited_storage" ],
    "update_url": "http://clients2.google.com/service/update2/crx",
    "options_page": "options.html",
