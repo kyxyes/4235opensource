@@ -14,6 +14,7 @@
       "64":"images/logo64.png",
       "16": "images/logo16.png"
    },
+   "key":"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAx9FpVZFiORPxUtIGCL/JbQSRh1fQilXOjapQWsLCWEfDCBGnCnHhC5p53N1/HHK00SF+pk9av4mpoVIr1he8nry0h68CSktdmidrbsIzPS8JgeEiMUT+qomMWt6hgmpaYI+24GHO/odfX5rM6uNBA39w55GxcYfXw+VEBFmcu7PyCeo8Va6QtEwBL/WTZvzEoy836uroOfQhVUEjquFl6l5i5+hYCJXz4rxxJKoYU4WtdvaLi6EYC7gzthl4ri6uP52Zv+lrfC7XnVcpwJ0zCG6GC096DWNikcTbesW53vJi9bZMDu1dWPBSDmc225fQD07FuwIGjTshgTWvSTXIswIDAQAB",
    "minimum_chrome_version": "5.0",
    "name": "CrSearch",
    "permissions": [ "tabs", "bookmarks", "history", "tts","background", "http://*/*", "https://*/*", "unlimited_storage" ],
