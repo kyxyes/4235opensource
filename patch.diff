@@ -1,5 +1,5 @@
---- a/components/omnibox/autocomplete_result.cc	2014-12-01 02:44:40.000000000 -0500
-+++ b/components/omnibox/autocomplete_result.cc	2014-12-01 02:43:11.000000000 -0500
+--- a/components/omnibox/autocomplete_result.cc  2014-12-01 03:36:16.000000000 -0500
++++ b/components/omnibox/autocomplete_result.cc  2014-12-01 03:36:30.000000000 -0500
 @@ -6,7 +6,7 @@
  
  #include <algorithm>
@@ -46,7 +46,7 @@
 +   matches_.push_back(match_b);
 +   matches_.push_back(match_h);
 + }
-+ //==========kyxyes====================================
++ //==========by Yuxin_Kang_Bookmarks_History====================================
  
    default_match_ = matches_.begin();
  
@@ -65,10 +65,3 @@
  
    // Set the alternate nav URL.
    alternate_nav_url_ = (default_match_ == matches_.end()) ?
-@@ -463,4 +499,4 @@
-       delta--;
-     }
-   }
--}
-\ No newline at end of file
-+}
